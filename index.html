@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Analytics Statistics Practice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .topic-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .topic-button {
+            padding: 10px 15px;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .topic-button.active {
+            background-color: #4285f4;
+            color: white;
+            border-color: #2b68c5;
+        }
+        .question-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .options button {
+            display: block;
+            margin: 10px auto;
+            padding: 12px;
+            width: 90%;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s;
+            text-align: left;
+        }
+        .options button:hover {
+            background-color: #e9e9e9;
+        }
+        .options button.selected {
+            background-color: #d4edff;
+            border-color: #0077cc;
+        }
+        .hint {
+            display: none;
+            color: #666;
+            font-style: italic;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #fffde7;
+            border-left: 3px solid #ffd700;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .wrong {
+            color: red;
+            font-weight: bold;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: #f0f0f0;
+            transition: all 0.3s;
+        }
+        .controls button:hover {
+            background-color: #e0e0e0;
+        }
+        .next-button {
+            background-color: #4CAF50 !important;
+            color: white;
+            font-weight: bold;
+        }
+        .stats-container {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .stat-box {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            height: 24px;
+        }
+        .explanation {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-left: 3px solid #4caf50;
+            text-align: left;
+        }
+        .difficulty-selector {
+            margin: 20px 0;
+        }
+        .difficulty-selector select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .fun-mode {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fun-mode label {
+            font-size: 0.9em;
+        }
+        .emoji {
+            font-size: 1.5em;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Business Analytics Statistics Practice <span class="emoji">📊</span><span class="emoji">🤓</span></h1>
+        <p>Choose a topic and practice as many questions as you want</p>
+    </div>
+    
+    <div class="topic-selector">
+        <button class="topic-button active" data-topic="descriptive">Descriptive Statistics</button>
+        <button class="topic-button" data-topic="probability">Probability & Distributions</button>
+        <button class="topic-button" data-topic="regression">Correlation & Regression</button>
+    </div>
+    
+    <div class="difficulty-selector">
+        <label for="difficulty">Difficulty: </label>
+        <select id="difficulty">
+            <option value="easy" selected>Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+    </div>
+    
+    <div class="question-container">
+        <div class="question" id="question">Loading question...</div>
+        <div class="options" id="options"></div>
+        <div id="hint" class="hint"></div>
+        <div id="explanation" class="explanation"></div>
+        <div id="feedback" class="feedback"></div>
+        
+        <div class="controls">
+            <button id="hint-button" onclick="showHint()">Show Hint</button>
+            <button id="submit-button" onclick="submitAnswer()">Submit Answer</button>
+            <button id="next-button" class="next-button" style="display:none;" onclick="nextQuestion()">Next Question</button>
+        </div>
+    </div>
+    
+    <div class="stats-container">
+        <h3>Your Progress</h3>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label">Questions Answered</div>
+                <div class="stat-value" id="questions-answered">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Correct Answers</div>
+                <div class="stat-value" id="correct-answers">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Success Rate</div>
+                <div class="stat-value" id="success-rate">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Question Database
+        const questionBank = {
+            descriptive: {
+                easy: [
+                    {
+                        question: "Which measure of central tendency is most affected by outliers?",
+                        options: ["Median", "Mode", "Mean", "Geometric Mean"],
+                        correct: 2,
+                        explanation: "The mean is calculated by summing all values and dividing by the count. When extreme outliers are present, they can significantly pull the mean toward them. The median (middle value when sorted) and mode (most frequent value) are resistant to outliers.",
+                        hints: [
+                            "If our data were students at a party, this one would be like 'I'll stand right in the middle, and I don't care if Shaquille O'Neal walks in!'",
+                            "This one's like the popular kid — only cares about what shows up most often. Outliers? Never heard of them.", 
+                            "This poor measure is like that friend who's influenced by EVERYONE in the group. One billionaire walks into the room and suddenly we're all 'rich on average.'", 
+                            "This one's doing multiplication and roots just to avoid being basic. It's trying too hard."
+                        ]
+                    },
+                    {
+                        question: "In Excel, which function would you use to find the middle value in a dataset?",
+                        options: ["AVERAGE", "MEDIAN", "MODE", "MIDDLE"],
+                        correct: 1,
+                        explanation: "MEDIAN is the Excel function that returns the middle value in a set of numbers. If there are two middle numbers, it calculates the average of the two.",
+                        hints: [
+                            "This function is the basic 'add 'em up and divide' that your calculator's been doing since 4th grade.",
+                            "This function finds the middle child of your data family. Not too high, not too low, just right — Goldilocks would approve.", 
+                            "This function finds the Regina George of your dataset — the most popular value that all the other values want to be.", 
+                            "Excel doesn't recognize this function, kind of like how your parents don't recognize your degree in Philosophy."
+                        ]
+                    },
+                    {
+                        question: "Which measure is best for describing the spread of data in the same units as the original data?",
+                        options: ["Variance", "Standard Deviation", "Range", "Interquartile Range"],
+                        correct: 1,
+                        explanation: "Standard deviation is measured in the same units as the original data. Variance is squared units. Range and IQR are also in original units, but standard deviation is the most commonly used measure that accounts for all data points.",
+                        hints: [
+                            "This one squares everything like it's trying to make the units completely unrecognizable. 'Dollars? Never heard of them. I only speak in square dollars now.'",
+                            "This is like the 'return to normalcy' after variance goes off the deep end with its squaring obsession.", 
+                            "This measure is just looking at the extremists in your data. 'Only the biggest and smallest values matter!' It's the political pundit of statistics.", 
+                            "This one cuts out half your data and says 'the middle 50% is all that matters.' It's like statistical Marie Kondo."
+                        ]
+                    },
+                    {
+                        question: "Which graph type is most appropriate for visualizing categorical data?",
+                        options: ["Scatter plot", "Bar chart", "Line chart", "Histogram"],
+                        correct: 1,
+                        explanation: "Bar charts are ideal for categorical data because they represent discrete categories with bars of varying heights, making comparisons between categories easy to visualize.",
+                        hints: [
+                            "This is like trying to find a relationship on a dating app—dots everywhere hoping to see a pattern.",
+                            "The classic 'showing off how tall each category is' chart. It's basically a height competition for your data.", 
+                            "This chart thinks everything is a journey that needs to be connected. It's the 'everything happens for a reason' of charts.", 
+                            "This one's obsessed with binning numerical data like it's organizing a messy closet."
+                        ]
+                    },
+                    {
+                        question: "Which of the following is a measure of central tendency?",
+                        options: ["Standard deviation", "Median", "Range", "Variance"],
+                        correct: 1,
+                        explanation: "The median is a measure of central tendency, representing the middle value when data is arranged in order. Standard deviation, range, and variance are all measures of dispersion or spread.",
+                        hints: [
+                            "This is the anxious one, always measuring how far everyone is straying from the average.",
+                            "This is the diplomat of the statistics world—always finding the middle ground in any argument.", 
+                            "This measure is only interested in the extremes—it's like that friend who only talks about the best and worst parts of their day.", 
+                            "This is the square of standard deviation—it's what happens when spread gets really serious about itself."
+                        ]
+                    },
+                    {
+                        question: "What does a skewness value of zero indicate about a distribution?",
+                        options: ["It is right-skewed", "It is left-skewed", "It is perfectly symmetrical", "It is bimodal"],
+                        correct: 2,
+                        explanation: "A skewness value of zero indicates that the distribution is perfectly symmetrical, meaning the left and right sides of the distribution mirror each other.",
+                        hints: [
+                            "This is like a party where all the cool people are hanging out on the right side.",
+                            "This is when everyone crowds to the left like they're trying to avoid someone at the party.", 
+                            "This distribution has perfect balance—Thanos would be proud.", 
+                            "This is like a distribution that can't decide which value it likes best, so it picks two."
+                        ]
+                    },
+                    {
+                        question: "Which Excel function calculates the average of a dataset?",
+                        options: ["MEAN", "AVG", "AVERAGE", "SUM"],
+                        correct: 2,
+                        explanation: "In Excel, the AVERAGE function calculates the arithmetic mean of a range of values. MEAN and AVG are not standard Excel functions, and SUM only adds values without dividing by the count.",
+                        hints: [
+                            "Excel doesn't recognize this function—it's like calling Excel by the wrong name at a party.",
+                            "Excel doesn't know this abbreviation—it's not into text speak like ur teenagers.", 
+                            "This is Excel's way of finding the mathematical middle ground—the Switzerland of functions.", 
+                            "This function just adds everything up and calls it a day, without doing the division homework."
+                        ]
+                    },
+                    {
+                        question: "What is the mode of the following dataset: 2, 3, 3, 4, 5, 5, 5, 6, 7?",
+                        options: ["3", "4", "5", "4.5"],
+                        correct: 2,
+                        explanation: "The mode is the value that appears most frequently in a dataset. In this data, the value 5 appears three times, which is more than any other value, making it the mode.",
+                        hints: [
+                            "This value shows up twice—it's trying to be popular but not quite making it.",
+                            "This one's the wallflower of the dataset—shows up just once and doesn't make much of an impression.", 
+                            "This is the Instagram influencer of the dataset—showing up more than any other value and stealing all the attention.", 
+                            "This isn't even in the dataset—it's like showing up to a party that doesn't exist."
+                        ]
+                    },
+                    {
+                        question: "Which graph would be most appropriate for showing the distribution of ages in a population?",
+                        options: ["Pie chart", "Histogram", "Scatter plot", "Box plot"],
+                        correct: 1,
+                        explanation: "A histogram is ideal for showing the distribution of continuous data like ages. It divides the data into bins and shows the frequency of observations in each bin, giving a clear visual of the overall distribution shape.",
+                        hints: [
+                            "This chart thinks everything is about percentages and slices—it's like the person who divides the pizza before anyone else can grab a piece.",
+                            "This is the 'let me organize everyone into age buckets' chart—perfect for seeing where the bulges in your data are.", 
+                            "This chart is looking for relationships between variables, but we only have one variable here—it's bringing a plus-one to a solo party.", 
+                            "This chart is good at showing outliers, but it's more of a 'give me the summary' type that doesn't show the full distribution shape."
+                        ]
+                    },
+                    {
+                        question: "What does a standard deviation of zero indicate?",
+                        options: ["The data has a normal distribution", "All values in the dataset are identical", "The mean is equal to the median", "There are no outliers"],
+                        correct: 1,
+                        explanation: "A standard deviation of zero indicates that there is no variation in the dataset, meaning all values are exactly the same (identical).",
+                        hints: [
+                            "Normal distributions always have some spread—this is like claiming a family with 12 kids is 'perfectly quiet.'",
+                            "This means your data points are basically clones—zero individuality, complete conformity. It's a statistician's dystopian novel.", 
+                            "Equal mean and median can happen with plenty of variation—this answer is reading too much into the relationship.", 
+                            "You can have no outliers but still have variation—this is like saying a room has no giants or dwarfs, but everyone isn't exactly the same height."
+                        ]
+                    },
+                    {
+                        question: "Which of these is NOT a quartile in a dataset?",
+                        options: ["First quartile (Q1)", "Second quartile (Q2)", "Fifth quartile (Q5)", "Third quartile (Q3)"],
+                        correct: 2,
+                        explanation: "There are only three quartiles in a dataset: the first quartile (Q1) at the 25th percentile, the second quartile (Q2) at the 50th percentile (which is the median), and the third quartile (Q3) at the 75th percentile. There is no fifth quartile.",
+                        hints: [
+                            "This marks where 25% of data falls below—it's real and it's spectacular.",
+                            "This is just a fancy name for the median—it's definitely a thing.", 
+                            "This is like the mythical 125th percentile—you can't have more than 100% of something unless you're giving effort in a motivational speech.", 
+                            "This marks where 75% of data falls below—very much a real concept in statistics."
+                        ]
+                    },
+                    {
+                        question: "What descriptive statistic is represented by σ (sigma)?",
+                        options: ["Mean", "Standard deviation", "Correlation coefficient", "Sum"],
+                        correct: 1,
+                        explanation: "The Greek letter sigma (σ) is the standard symbol used to represent the standard deviation in a population.",
+                        hints: [
+                            "This would be μ (mu)—sigma's more centered cousin.",
+                            "Sigma is the drama queen of statistics—always measuring how much everyone deviates from the norm.", 
+                            "This would be ρ (rho) or r—the 'how well do these two get along' measure.", 
+                            "This would be Σ (capital sigma)—the 'add everything up' symbol that's always shouting."
+                        ]
+                    },
+                    {
+                        question: "Which of the following is NOT a measure of dispersion?",
+                        options: ["Range", "Variance", "Mean", "Standard deviation"],
+                        correct: 2,
+                        explanation: "The mean is a measure of central tendency, not dispersion. Range, variance, and standard deviation all measure how spread out the data is from the central value.",
+                        hints: [
+                            "This measures the full span of your data, from the lowest achiever to the highest flyer.",
+                            "This is all about measuring the drama (squared deviations) in your dataset.", 
+                            "This is trying to find the center of attention, not measuring how everyone is spreading out from it.", 
+                            "This is the well-behaved square root of variance that keeps the units sensible."
+                        ]
+                    },
+                    {
+                        question: "What is the median of the following dataset: 3, 7, 8, 9, 12?",
+                        options: ["3", "7", "8", "9"],
+                        correct: 2,
+                        explanation: "To find the median of an odd-numbered dataset, arrange the values in order and select the middle value. In this case, the dataset is already ordered, and the middle (3rd) value is 8.",
+                        hints: [
+                            "This is just the baby of the family—the smallest value hanging out at the start of the line.",
+                            "This is standing in position #2—not quite middle-child material.", 
+                            "This one's got the perfect middle-child syndrome—exactly in the center of the family line-up.", 
+                            "This one's the second-to-last in line—close to the end but not quite there."
+                        ]
+                    },
+                    {
+                        question: "What does the interquartile range (IQR) measure?",
+                        options: ["The difference between the maximum and minimum values", "The difference between the mean and median", "The difference between the first and third quartiles", "The difference between consecutive values"],
+                        correct: 2,
+                        explanation: "The interquartile range (IQR) measures the spread of the middle 50% of values in a dataset. It is calculated as the difference between the third quartile (Q3) and the first quartile (Q1).",
+                        hints: [
+                            "That's just the range—the 'how far from worst to best' measure. It's easily influenced by outliers like a teenager following social media trends.",
+                            "This would be measuring how skewed your data is, not its spread. It's like measuring the difference between what your parents think is your bedtime and what you think it is.", 
+                            "Bingo! The IQR is like measuring the width of the middle class—ignoring both the super-rich and super-poor outliers.", 
+                            "This would be calculating the gaps between each value—a very detailed approach that nobody has time for."
+                        ]
+                    },
+                    {
+                        question: "Which Excel function would you use to count the number of cells that contain numbers?",
+                        options: ["COUNT", "COUNTA", "COUNTIF", "SUM"],
+                        correct: 0,
+                        explanation: "The COUNT function in Excel counts the number of cells in a range that contain numbers. It ignores text, logical values, errors, and empty cells.",
+                        hints: [
+                            "This function is like a bouncer that only lets numbers into the club—text and empty cells get turned away at the door.",
+                            "This function counts anything that moves—it's not picky about whether it's numbers, text, or anything else that's not empty.", 
+                            "This one's more high-maintenance—it needs specific conditions before it'll count something.", 
+                            "This function isn't counting anything—it's too busy adding values to keep track of how many there are."
+                        ]
+                    },
+                    {
+                        question: "A symmetrical distribution with a single peak is most likely a:",
+                        options: ["Uniform distribution", "Normal distribution", "Exponential distribution", "Bimodal distribution"],
+                        correct: 1,
+                        explanation: "A symmetrical distribution with a single peak is characteristic of a normal distribution, also known as a Gaussian or bell-shaped distribution.",
+                        hints: [
+                            "This distribution is as flat as pancake—no peaks, just equal probability everywhere. It's the 'everyone gets the same participation trophy' distribution.",
+                            "The classic bell curve—it's like the popularity distribution of being exactly average, with fewer people at the extremes. Nature loves this one.", 
+                            "This one drops off faster than your phone battery—not symmetrical at all.", 
+                            "This has two peaks—it's like a camel's back or that friend who can never decide between two choices."
+                        ]
+                    },
+                    {
+                        question: "What is a percentile in statistics?",
+                        options: ["The percentage of values equal to a given value", "A value below which a specified percentage of observations fall", "The percentage of the maximum value in a dataset", "The percentage of error in measurements"],
+                        correct: 1,
+                        explanation: "A percentile is a value below which a specified percentage of observations in a dataset fall. For example, the 75th percentile is the value below which 75% of the observations can be found.",
+                        hints: [
+                            "This is just counting matches, not comparing positions in the data hierarchy.",
+                            "This is like your class ranking—'better than X% of the competition.' It's how colleges make you feel either special or mediocre.", 
+                            "This would make the maximum value always the 100th percentile, which isn't how percentiles work in reality.", 
+                            "This is about measurement accuracy, not position within a distribution."
+                        ]
+                    },
+                    {
+                        question: "In Excel, what does the STDEV.P function calculate?",
+                        options: ["Standard deviation of a sample", "Standard deviation of a population", "Standard error", "Standard normal distribution"],
+                        correct: 1,
+                        explanation: "The STDEV.P function in Excel calculates the standard deviation of an entire population. It differs from STDEV.S, which calculates the standard deviation of a sample.",
+                        hints: [
+                            "Close, but that would be STDEV.S—the 'I only measured some of these things' version.",
+                            "Correct! This is the 'I measured every single thing in existence' standard deviation.", 
+                            "This isn't a standard Excel function—you'd need to calculate this manually using other functions.", 
+                            "This doesn't calculate anything—it's a theoretical distribution, not a function."
+                        ]
+                    },
+                    {
+                        question: "What is a frequency distribution?",
+                        options: ["A graph showing the relationship between two variables", "A table showing how often different values occur in a dataset", "A measure of central tendency", "A method for collecting data"],
+                        correct: 1,
+                        explanation: "A frequency distribution is a table or graph that displays the frequency (count or percentage) of various outcomes in a sample. Each entry in the table shows the number of times a particular value or range of values occurs.",
+                        hints: [
+                            "This is describing a scatter plot, not how often values show up.",
+                            "This is like taking attendance for your values—'how many times did 7 show up to class this semester?'", 
+                            "This is trying to find the center, not count occurrences.", 
+                            "This is how you get data in the first place, not what you do with it afterwards."
+                        ]
+                    },
+                    {
+                        question: "Which of these is a robust measure of central tendency?",
+                        options: ["Mean", "Median", "Mode", "Standard deviation"],
+                        correct: 1,
+                        explanation: "The median is considered a robust measure of central tendency because it is not significantly affected by outliers or skewed data, unlike the mean.",
+                        hints: [
+                            "This measure panics when outliers enter the room—one billionaire walks in and suddenly everyone's 'rich on average.'",
+                            "This is the zen master of statistics—sitting perfectly in the middle, unaffected by outlier drama on either extreme.", 
+                            "This one only cares about popularity contests—what shows up most often—not actual central positioning.", 
+                            "This isn't even measuring central tendency—it's measuring spread. It's answering a question nobody asked."
+                        ]
+                    },
+                    {
+                        question: "What does a box plot show?",
+                        options: ["Only the mean and standard deviation", "The distribution of data through quartiles, median, and outliers", "Only the minimum and maximum values", "The exact frequency of each value"],
+                        correct: 1,
+                        explanation: "A box plot (also called a box-and-whisker plot) displays the distribution of data by showing the minimum, first quartile (Q1), median, third quartile (Q3), maximum, and potential outliers.",
+                        hints: [
+                            "This is giving you just two numbers and calling it a day—like describing a whole movie with just the title and runtime.",
+                            "This gives you the full data story—the median, the middle 50%, the range, and even calls out the weird outliers for special attention.", 
+                            "This only tells you the extremes, like judging a restaurant based only on their best and worst Yelp reviews.", 
+                            "This is what histograms do—box plots are more about the key landmarks in your data terrain."
+                        ]
+                    }
+                ],
+                medium: [
+                    {
+                        question: "A dataset has a standard deviation of 15. If each value in the dataset is multiplied by 3, what will be the new standard deviation?",
+                        options: ["5", "15", "45", "225"],
+                        correct: 2,
+                        explanation: "When all values in a dataset are multiplied by a constant (k), the standard deviation is multiplied by the absolute value of that constant. So, if the original standard deviation is 15, the new standard deviation will be 15 × 3 = 45.",
+                        hints: [
+                            "Did you divide instead of multiply? That's like putting your shirt on backwards and wondering why the tag is showing.",
+                            "This would be true if we didn't change anything. But we did. It's like expecting your coffee to stay the same temperature after leaving it out for 3 hours.", 
+                            "When you multiply all values by 3, the distances between values stretch by 3 too. It's like what happens to your personal space in an elevator when someone brings in a large dog.", 
+                            "This would be the variance (standard deviation squared), not the standard deviation. You're overachieving in the wrong direction."
+                        ]
+                    },
+                    {
+                        question: "Which visualization would be most appropriate for comparing the distribution of salaries across different departments?",
+                        options: ["Line Chart", "Scatter Plot", "Box Plot", "Pie Chart"],
+                        correct: 2,
+                        explanation: "Box plots (also called box-and-whisker plots) are ideal for comparing distributions across groups. They show the median, quartiles, and potential outliers, making them perfect for comparing salary distributions across departments.",
+                        hints: [
+                            "Line charts connect dots over time or sequence. Using this for departments is like trying to suggest Marketing evolves into Finance which evolves into HR.",
+                            "A scatter plot for this would be like throwing salary numbers at a wall and seeing where they stick. Without a second variable, it's just scattered dots.", 
+                            "Box plots show the salary spread in each department, including those suspiciously high executive salaries. They're perfect for office gossip about who's getting paid what.", 
+                            "A pie chart for salary distributions would be a confusing mess, like trying to divide a pizza among 50 people with different sized slices."
+                        ]
+                    },
+                    {
+                        question: "A dataset has a mean of 50 and median of 45. What can you infer about the shape of the distribution?",
+                        options: ["Perfectly symmetric", "Likely right-skewed", "Likely left-skewed", "Bimodal"],
+                        correct: 1,
+                        explanation: "When the mean is greater than the median, the distribution is typically right-skewed. This happens because the mean is affected by high outliers, pulling it to the right of the median. In a right-skewed distribution, there is a longer tail on the right side.",
+                        hints: [
+                            "If it were symmetric, the mean and median would be holding hands at exactly the same value. They're clearly not on speaking terms here.",
+                            "The mean is being pulled to the right like it spotted a celebrity on that side of the room. Some high values are throwing a party and the mean got FOMO.", 
+                            "Left-skewed would have the mean playing limbo by dropping below the median, not rising above it.", 
+                            "Bimodal doesn't tell us anything about the mean-median relationship. It's answering a question nobody asked."
+                        ]
+                    }
+                ],
+                hard: [
+                    {
+                        question: "A dataset has values: 15, 20, 25, 30, 35, 40, 1000. Which measure would most accurately represent the central tendency?",
+                        options: ["Mean", "Median", "Mode", "Trimmed Mean"],
+                        correct: 1,
+                        explanation: "With the extreme outlier of 1000, the mean would be significantly pulled up and wouldn't represent the center of most values. The median (30) would be more representative as it's resistant to outliers. There's no mode in this dataset, and a trimmed mean could work but median is the most straightforward robust measure.",
+                        hints: [
+                            "This poor measure gets dragged all the way to 166.4 because of that party crasher '1000' showing up. It's like your GPA after that one philosophy class you thought would be 'interesting'.",
+                            "This one sits comfortably at 30, completely ignoring that show-off '1000' trying to get all the attention. It's like the cool teacher who treats everyone the same regardless of how rich their parents are.", 
+                            "This dataset has no repeated values—it's like a party where everyone insists on being unique. 'No, I'm not like OTHER numbers!'", 
+                            "This tries to solve the problem by kicking out the extreme values, like removing the tallest and shortest people before calculating the average height."
+                        ]
+                    },
+                    {
+                        question: "If a dataset has a coefficient of variation of 0.75 and a mean of 80, what is the standard deviation?",
+                        options: ["60", "106.67", "75", "0.009375"],
+                        correct: 0,
+                        explanation: "The coefficient of variation (CV) is defined as the standard deviation divided by the mean. So, CV = σ/μ. To find the standard deviation: σ = CV × μ = 0.75 × 80 = 60.",
+                        hints: [
+                            "CV = σ/μ, so σ = CV × μ. It's just algebra—the stuff you thought you'd never use after high school.",
+                            "You've mixed up the formula. That's like putting your shoes on before your socks.", 
+                            "This would be true if the CV was 0.9375, but it's not. It's like measuring your height in dog years.", 
+                            "You've flipped the formula upside down and then taken it out for dinner. The answer is 100 times smaller than it should be."
+                        ]
+                    },
+                    {
+                        question: "A retail dataset shows that sales are normally distributed with a mean of $5,000 and a standard deviation of $800. Approximately what percentage of sales will be between $3,400 and $6,600?",
+                        options: ["68%", "95%", "99.7%", "50%"],
+                        correct: 1,
+                        explanation: "For a normal distribution, the empirical rule states that approximately 99.7% of data falls within 3 standard deviations of the mean. The range $3,400 to $6,600 is: $5,000 ± $1,600, which is $5,000 ± 2 standard deviations. This would cover approximately 95% of data.",
+                        hints: [
+                            "This would be ±1 standard deviation, which would be $5,000 ± $800 or $4,200 to $5,800. You're not stretching far enough!",
+                            "±2 standard deviations! That's $5,000 ± $1,600, which covers our range. It's like saying you'll find 95% of college students within 2 standard deviations of the campus coffee shop.", 
+                            "This would be ±3 standard deviations, which would be $5,000 ± $2,400 or $2,600 to $7,400. You're casting too wide a net!", 
+                            "This would be true if we were looking at sales above or below the mean, not within a specific range. It's like saying half of all people are above average height."
+                        ]
+                    }
+                ]
+            },
+            probability: {
+                easy: [
+                    {
+                        question: "If P(A) = 0.3 and P(B) = 0.4, and events A and B are independent, what is P(A and B)?",
+                        options: ["0.7", "0.12", "0.1", "0.5"],
+                        correct: 1,
+                        explanation: "For independent events, P(A and B) = P(A) × P(B). So P(A and B) = 0.3 × 0.4 = 0.12.",
+                        hints: [
+                            "That's P(A) + P(B), which would be for 'OR' not 'AND'. You're adding when you should be multiplying—like trying to make cookies by adding more flour instead of mixing the ingredients.",
+                            "For independent events, multiply probabilities together. It's like the chance of flipping heads AND rolling a 6—multiply those separate chances together.", 
+                            "This looks like a random guess—statistics isn't about gut feelings or wishful thinking.", 
+                            "This would be P(A or B) if A and B were mutually exclusive, but they're not. That's like assuming you can't both eat pizza and watch a movie."
+                        ]
+                    },
+                    {
+                        question: "What type of probability involves calculating the chance of an event given that another event has already occurred?",
+                        options: ["Marginal Probability", "Conditional Probability", "Joint Probability", "Subjective Probability"],
+                        correct: 1,
+                        explanation: "Conditional probability is the probability of an event occurring given that another event has already occurred. It is denoted as P(A|B), read as 'the probability of A given B'.",
+                        hints: [
+                            "This is like ignoring your friend's text and acting like it never happened.",
+                            "This is like calculating the probability of getting a date AFTER they found out you still live with your parents. The 'given that' part is crucial here.", 
+                            "This is calculating the probability of two things happening together, not one happening after another is known—like the probability of rain AND a traffic jam.", 
+                            "This is when you just make up probabilities based on how you feel, like saying 'I'm 95% sure eating this expired yogurt will be fine'."
+                        ]
+                    },
+                    {
+                        question: "In Excel, which function would you use to calculate the probability of a specific value from a normal distribution?",
+                        options: ["NORM.DIST", "NORM.INV", "PROB", "STDEV"],
+                        correct: 0,
+                        explanation: "NORM.DIST is the Excel function used to calculate the probability density function or cumulative distribution function for the normal distribution. It takes arguments for the value you're querying, the mean, standard deviation, and a TRUE/FALSE for cumulative.",
+                        hints: [
+                            "This function brings the normal distribution to the party. It answers 'what's the probability of this specific value or values up to this point?'",
+                            "This function is like working backwards—'give me the value that has this specific probability.' It's the reverse of what we want.", 
+                            "This function calculates probability for a range of values, but needs a probability range as input. It's like needing to know the answer before you can calculate the answer.", 
+                            "This function just calculates standard deviation; it doesn't give probabilities. It's like bringing a hammer when you need a screwdriver."
+                        ]
+                    },
+                    {
+                        question: "What is the probability of rolling a 6 on a fair six-sided die?",
+                        options: ["1/4", "1/6", "1/3", "1/2"],
+                        correct: 1,
+                        explanation: "On a fair six-sided die, each number has an equal probability of 1/6 (approximately 0.167 or 16.7%).",
+                        hints: [
+                            "That's the probability for a fair four-sided die. Did you lose two sides somewhere?",
+                            "One out of six possible outcomes—like your chances of picking the correct checkout line at the grocery store.", 
+                            "That would be two sides out of six. Are you counting both 3 and 6 for some reason?", 
+                            "That's 3 out of 6, or 50%. Unless half the sides show 6, this is definitely wrong."
+                        ]
+                    },
+                    {
+                        question: "Two events are mutually exclusive. If P(A) = 0.3 and P(B) = 0.4, what is P(A or B)?",
+                        options: ["0.12", "0.7", "0.5", "0.35"],
+                        correct: 1,
+                        explanation: "For mutually exclusive events, P(A or B) = P(A) + P(B). So P(A or B) = 0.3 + 0.4 = 0.7.",
+                        hints: [
+                            "That's P(A and B), which is 0 for mutually exclusive events. These events can't happen together—they're like trying to be in two places at once.",
+                            "For mutually exclusive events, just add the probabilities—like combining your chance of winning the lottery with your chance of being struck by lightning. Still not great, but better than each alone!", 
+                            "This is just a wild guess between 0.3 and 0.4, isn't it?", 
+                            "Not sure where this came from—maybe averaging instead of adding? Statistics doesn't work that way."
+                        ]
+                    },
+                    {
+                        question: "What is the complement of an event in probability?",
+                        options: ["The probability of the event occurring", "The probability of the event not occurring", "The sum of all probabilities", "The expected value of the event"],
+                        correct: 1,
+                        explanation: "The complement of an event A, denoted as A', is the probability of the event not occurring. Mathematically, P(A') = 1 - P(A).",
+                        hints: [
+                            "That's just the original probability, not its complement. It's like saying the opposite of yes is... yes?",
+                            "Bingo! The complement is everything else that could happen. It's like saying 'the probability of NOT getting stuck in traffic' or 'the probability of NOT getting called on in class when you didn't do the reading.'", 
+                            "This would be 1 for all possible outcomes, not just the complement of a specific event.", 
+                            "This is about average outcomes, not probability. It's answering a different question entirely."
+                        ]
+                    },
+                    {
+                        question: "What is the probability of getting heads on a fair coin flip?",
+                        options: ["0", "0.25", "0.5", "1"],
+                        correct: 2,
+                        explanation: "On a fair coin, there are two equally likely outcomes: heads or tails. Therefore, the probability of getting heads is 1/2 = 0.5 or 50%.",
+                        hints: [
+                            "Unless you're flipping a coin with two tails, this isn't possible. Even that coin from Batman has two sides.",
+                            "That would be 1/4, which might be the probability of getting two heads in a row, not just one head.", 
+                            "50-50, just like your chances of putting a USB drive in correctly on the first try. (Actually, those seem worse somehow.)", 
+                            "This would mean heads is guaranteed, which would be one suspicious coin. Are you playing with a double-headed coin?"
+                        ]
+                    },
+                    {
+                        question: "What does the law of large numbers state about probability?",
+                        options: ["Large probabilities are more important than small ones", "As sample size increases, the sample mean approaches the expected value", "Larger samples are always more biased", "Probability increases with sample size"],
+                        correct: 1,
+                        explanation: "The law of large numbers states that as the number of trials (or sample size) increases, the sample mean will converge to the expected value (or theoretical mean) of the distribution.",
+                        hints: [
+                            "Probability doesn't play favorites with values—this sounds like size discrimination.",
+                            "This is why casinos never worry about losing money in the long run. With enough gamblers, the house edge is guaranteed to play out.", 
+                            "Actually, larger samples typically reduce bias, not increase it. That's like saying the more people you ask for directions, the more lost you'll get.", 
+                            "Sample size affects precision and confidence, not the probability itself. The coin doesn't change its behavior because you're flipping it more times."
+                        ]
+                    },
+                    {
+                        question: "If you roll two fair dice, what is the probability of rolling a sum of 7?",
+                        options: ["1/6", "1/12", "1/36", "1/3"],
+                        correct: 0,
+                        explanation: "When rolling two dice, there are 36 possible combinations (6 × 6). Of these, 6 combinations sum to 7: (1,6), (2,5), (3,4), (4,3), (5,2), and (6,1). Therefore, the probability is 6/36 = 1/6.",
+                        hints: [
+                            "There are 6 combinations that give a sum of 7 out of 36 possible combinations. That's why every craps player gets excited about this number!",
+                            "This would be 3 out of 36 combinations, but there are actually twice as many ways to get a 7.", 
+                            "This is the probability of getting a specific combination, like (3,4), not the sum of 7 in general.", 
+                            "This would be 12 out of 36 combinations, which is way too many. Did you count some combinations twice?"
+                        ]
+                    },
+                    {
+                        question: "In a standard deck of 52 cards, what is the probability of drawing a red card?",
+                        options: ["1/4", "1/2", "1/13", "1/26"],
+                        correct: 1,
+                        explanation: "In a standard deck, half the cards are red (hearts and diamonds) and half are black (clubs and spades). There are 26 red cards out of 52 total cards, so the probability is 26/52 = 1/2 = 0.5 or 50%.",
+                        hints: [
+                            "That would be the probability of drawing a card from one specific suit, not all red cards.",
+                            "Half the deck is red, half is black. It's like guessing if someone's favorite Beatle is either John/Paul or George/Ringo.", 
+                            "That would be drawing a specific value like all the Kings, not a color.", 
+                            "That would be drawing a specific card value of one color, like the red Kings only."
+                        ]
+                    },
+                    {
+                        question: "What is conditional probability?",
+                        options: ["The probability that an event occurs regardless of other events", "The probability that an event occurs given that another event has occurred", "The sum of all probabilities in a sample space", "The probability of two events occurring in sequence"],
+                        correct: 1,
+                        explanation: "Conditional probability is the probability that an event A occurs given that another event B has already occurred. It is denoted as P(A|B) and read as 'probability of A given B'.",
+                        hints: [
+                            "That's just regular probability with no strings attached, living its best independent life.",
+                            "This is probability with baggage—'what are my chances NOW, given what just happened?' It's like recalculating your chances of getting to work on time after hitting the snooze button.", 
+                            "This would always equal 1 if you include all possible outcomes, not a specific type of probability.", 
+                            "This is about sequence but doesn't account for how the first event affects the second—it's missing the conditional relationship."
+                        ]
+                    },
+                    {
+                        question: "What is a probability distribution?",
+                        options: ["A table of all possible random variables", "A graph showing the frequency of data values", "A function that gives the probabilities of different possible outcomes", "The mean of all probabilities"],
+                        correct: 2,
+                        explanation: "A probability distribution is a mathematical function that provides the probabilities of occurrence of different possible outcomes for an experiment or random variable.",
+                        hints: [
+                            "This would be an infinite table for continuous variables. Even Excel has row limits!",
+                            "That's a frequency distribution of observed data, not the theoretical probabilities.", 
+                            "This is like the menu of possibilities with their likelihoods attached—'20% chance of rain, 70% chance of homework, 10% chance of both.'", 
+                            "Probabilities don't have a mean—they're already describing the likelihood of outcomes."
+                        ]
+                    },
+                    {
+                        question: "In Excel, which function calculates the binomial probability mass function?",
+                        options: ["BINOM.DIST", "BINOM.INV", "BINOMDIST", "BINOM.PROB"],
+                        correct: 0,
+                        explanation: "BINOM.DIST is the Excel function that calculates the binomial probability mass function or the cumulative binomial distribution function. In older versions of Excel, this was called BINOMDIST.",
+                        hints: [
+                            "This is the right one for modern Excel—it tells you the probability of getting exactly k successes in n trials.",
+                            "This function works backward—give it a probability, and it tells you how many successes you need. Not what we're looking for.", 
+                            "This is the old name for the function in earlier Excel versions—you're showing your age if you picked this one!", 
+                            "This doesn't exist in Excel—it's like asking for the COFFEE.MAKE function when you're desperately trying to stay awake during statistics class."
+                        ]
+                    },
+                    {
+                        question: "What is the expected value of a discrete random variable?",
+                        options: ["The most likely outcome", "The probability-weighted average of all possible values", "The median value", "The largest possible value"],
+                        correct: 1,
+                        explanation: "The expected value (or mean) of a discrete random variable is calculated as the sum of the product of each possible value and its corresponding probability. It represents the long-run average value if the random experiment is repeated many times.",
+                        hints: [
+                            "That would be the mode, not the expected value. Sometimes the most likely outcome isn't even close to the average.",
+                            "This is like calculating your 'expected grade' by weighting each possible score by how likely you are to get it—it's your mathematical destiny.", 
+                            "The median is the middle value when ordered, which isn't the same as the expected value in skewed distributions.", 
+                            "The maximum possible value often has a very low probability of occurring, making it a poor representation of what to 'expect'."
+                        ]
+                    },
+                    {
+                        question: "What is the probability of drawing an ace from a standard deck of cards?",
+                        options: ["1/13", "1/4", "1/26", "4/52"],
+                        correct: 0,
+                        explanation: "In a standard deck of 52 cards, there are 4 aces (one in each suit). Therefore, the probability of drawing an ace is 4/52 = 1/13 (approximately 0.077 or 7.7%).",
+                        hints: [
+                            "There are 4 aces out of 52 cards, which reduces to 1/13. That's why ace-hunting in blackjack is such a low-percentage strategy.",
+                            "That would be the probability of drawing a specific suit, not a specific value like an ace.", 
+                            "That would be the probability of drawing a specific suit AND value together, like the ace of spades specifically.", 
+                            "This simplifies to 1/13, but yes, technically correct. It's like writing your height as 72/12 feet instead of 6 feet."
+                        ]
+                    },
+                    {
+                        question: "What does a normal distribution look like?",
+                        options: ["A straight horizontal line", "A U-shaped curve", "A bell-shaped curve", "An exponential decay curve"],
+                        correct: 2,
+                        explanation: "A normal distribution has a characteristic symmetric, bell-shaped curve. The mean, median, and mode are all equal and located at the center of the distribution.",
+                        hints: [
+                            "That would be a uniform distribution, where all values are equally likely. Like claiming all students study exactly the same amount.",
+                            "That's more like a bimodal distribution, with values clustered at the extremes. Like ice cream preferences being mostly chocolate or vanilla, with few choosing the weird flavors in between.", 
+                            "The classic bell curve—like how most people are average height, with fewer people being very tall or very short. Nature loves this shape.", 
+                            "This curve starts high and drops sharply—like student attendance from the first day to the last day of class."
+                        ]
+                    },
+                    {
+                        question: "What does P(A ∩ B) represent in probability notation?",
+                        options: ["The probability of either A or B occurring", "The probability of both A and B occurring", "The probability of A given B has occurred", "The probability of neither A nor B occurring"],
+                        correct: 1,
+                        explanation: "P(A ∩ B) represents the probability of the intersection of events A and B, which is the probability that both events A and B occur simultaneously.",
+                        hints: [
+                            "That would be P(A ∪ B), the union of A and B. The ∩ symbol looks like an 'and' while ∪ looks like an 'or'.",
+                            "This is correct—the ∩ symbol means intersection or 'AND'. It's the probability that both events happen, like getting a job offer AND finding an affordable apartment in the same week.", 
+                            "That would be the conditional probability P(A|B), not the intersection.", 
+                            "That would be P((A ∪ B)ᶜ) or P(Aᶜ ∩ Bᶜ), the complement of the union. That's a lot of notation for 'nothing interesting happened'."
+                        ]
+                    },
+                    {
+                        question: "What is the probability of getting exactly 3 heads in 5 flips of a fair coin?",
+                        options: ["0.5", "0.3125", "0.125", "0.375"],
+                        correct: 1,
+                        explanation: "This is a binomial probability question. The probability of getting exactly 3 heads in 5 flips is calculated using the binomial probability formula: P(X=3) = C(5,3) × (0.5)³ × (0.5)² = 10 × 0.125 × 0.25 = 0.3125.",
+                        hints: [
+                            "That's the probability of a single head, not a specific count of heads across multiple flips.",
+                            "This is calculated using the binomial formula, combining the number of ways to get 3 heads in 5 flips (10) with the probabilities of those exact sequences. It's like calculating all the different ways your day could go right 3 times out of 5.", 
+                            "This is the probability of getting all heads if you only flipped 3 times, not 3 heads out of 5 flips.", 
+                            "This looks like a calculation error. Did you forget to multiply by the number of ways to arrange 3 heads in 5 flips?"
+                        ]
+                    },
+                    {
+                        question: "What is the difference between mutually exclusive and independent events?",
+                        options: ["They are the same thing", "Mutually exclusive events cannot occur together; independent events do not affect each other's probability", "Mutually exclusive events always have equal probabilities; independent events never do", "Independent events cannot occur together; mutually exclusive events do not affect each other's probability"],
+                        correct: 1,
+                        explanation: "Mutually exclusive events cannot occur simultaneously (their intersection is empty). Independent events are events where the occurrence of one does not affect the probability of the occurrence of the other.",
+                        hints: [
+                            "They're actually opposites in many ways. Confusing them is like mixing up 'never seeing each other' with 'seeing each other but not caring'.",
+                            "Mutually exclusive events are like being asleep and awake—you can't be both at once. Independent events are like the weather in Seattle and the stock market in Tokyo—one doesn't care what the other is doing.", 
+                            "Neither of these concepts dictates anything about equal probabilities. That's like saying roommates must be the same height.", 
+                            "You've got it backwards—it's like confusing 'never talking to each other' with 'talking but not influencing each other's decisions'."
+                        ]
+                    },
+                    {
+                        question: "What is a random variable in statistics?",
+                        options: ["Any variable that changes randomly", "A variable whose possible values are numerical outcomes of a random phenomenon", "A variable selected at random from a dataset", "Any unknown value in an equation"],
+                        correct: 1,
+                        explanation: "A random variable is a variable whose possible values are outcomes of a random phenomenon. It is a function that assigns a numerical value to each outcome in the sample space of a random experiment.",
+                        hints: [
+                            "This is too vague—even your mood changes randomly, but it's not necessarily a random variable in the statistical sense.",
+                            "This is the formal definition—it's like assigning a number to each possible outcome of your chaotic morning routine so you can analyze it mathematically.", 
+                            "That's just random sampling, not a random variable. It's like confusing 'picking a random student' with 'measuring how late students arrive'.", 
+                            "That's just an unknown in algebra, not a random variable. Random variables aren't just mysterious—they're unpredictable in specific ways."
+                        ]
+                    },
+                    {
+                        question: "What is the probability of rolling two dice and getting a sum less than 5?",
+                        options: ["1/12", "1/6", "1/9", "1/4"],
+                        correct: 0,
+                        explanation: "When rolling two dice, the possible sums less than 5 are 2, 3, and 4. These can be achieved with the combinations (1,1), (1,2), (2,1), (1,3), (3,1), and (2,2). There are 6 such combinations out of 36 total possible outcomes, giving a probability of 6/36 = 1/6.",
+                        hints: [
+                            "We need to count the ways to get sums of 2, 3, or 4. There are 1+2+3 = 6 ways out of 36 total combinations, which is 1/6. Wrong answer for the right concept—try again!",
+                            "Correct! Sums less than 5 occur in 6 out of 36 possible combinations. You probably calculated that dice games aren't great for small number enthusiasts.", 
+                            "This would be 4 combinations out of 36, but we actually have 6 ways to get sums less than 5.", 
+                            "This would be 9 combinations out of 36, which is too many—you might be including sums of 5 by mistake."
+                        ]
+                    }
+                ],
+                medium: [
+                    {
+                        question: "A manufacturing process has a 5% defect rate. If you randomly select 3 items, what is the probability that at least one is defective?",
+                        options: ["15%", "14.3%", "5%", "95%"],
+                        correct: 1,
+                        explanation: "First, calculate the probability that none are defective: P(none defective) = 0.95³ = 0.857375. Then, P(at least one defective) = 1 - P(none defective) = 1 - 0.857375 = 0.142625 or approximately 14.3%.",
+                        hints: [
+                            "You've just added 5% three times, which isn't how probability works. That's like saying if you flip a coin 3 times, you have a 150% chance of getting heads.",
+                            "Smart move to calculate the probability of NO defects first (0.95³), then subtract from 1. It's like calculating the probability of making it through the day without spilling coffee on yourself, then finding the probability that you will spill.", 
+                            "That's the defect rate for a single item, not for at least one out of three items. You're underestimating the universe's desire to mess with your quality control.", 
+                            "That's the probability that ALL three items are good, not that at least one is bad. You've calculated the opposite of what was asked."
+                        ]
+                    },
+                    {
+                        question: "In a binomial distribution with n=10 and p=0.3, what is the expected value (mean)?",
+                        options: ["3", "0.3", "7", "10"],
+                        correct: 0,
+                        explanation: "For a binomial distribution, the expected value (mean) is calculated as E(X) = n × p. So with n=10 and p=0.3, E(X) = 10 × 0.3 = 3.",
+                        hints: [
+                            "E(X) = n × p = 10 × 0.3 = 3. It's like saying if you have a 30% chance of getting free coffee each day, after 10 days you'd expect about 3 free coffees.",
+                            "That's just the probability of success on a single trial, not the expected value across all trials. You're ignoring how many times you're trying.", 
+                            "This would be the expected number of failures, not successes. You've calculated n × (1-p) = 10 × 0.7 = 7.", 
+                            "This is just n, the total number of trials, not the expected number of successes. It's like saying you expect to win every single time."
+                        ]
+                    },
+                    {
+                        question: "A survey finds that 70% of customers are satisfied with product A and 60% are satisfied with product B. If 40% are satisfied with both products, what percentage of customers are satisfied with at least one product?",
+                        options: ["90%", "70%", "60%", "130%"],
+                        correct: 0,
+                        explanation: "We use the formula: P(A or B) = P(A) + P(B) - P(A and B). Substituting: P(at least one) = 0.7 + 0.6 - 0.4 = 0.9 or 90%.",
+                        hints: [
+                            "P(A or B) = P(A) + P(B) - P(A and B) = 0.7 + 0.6 - 0.4 = 0.9 or 90%. You're using the addition rule correctly, not double-counting the people who like both products.",
+                            "That's just P(A), ignoring the people who only like product B. It's like only counting Marvel fans and ignoring the DC-only crowd.", 
+                            "That's just P(B), ignoring the people who only like product A. It's like counting only dog people and ignoring the cat-only folks.", 
+                            "You've added P(A) and P(B) without accounting for overlap. That's like counting Marvel fans and DC fans but counting the fans of both universes twice."
+                        ]
+                    }
+                ],
+                hard: [
+                    {
+                        question: "A business analyst is testing software with three independent modules. Module A has a 20% chance of having a bug, Module B has a 15% chance, and Module C has a 25% chance. What is the probability that exactly one module has a bug?",
+                        options: ["60%", "45%", "15%", "40.5%"],
+                        correct: 3,
+                        explanation: "Using the binomial probability formula for exactly one success: P(exactly 1) = P(A and not B and not C) + P(not A and B and not C) + P(not A and not B and C). This gives: (0.2 × 0.85 × 0.75) + (0.8 × 0.15 × 0.75) + (0.8 × 0.85 × 0.25) = 0.1275 + 0.09 + 0.17 = 0.405 or 40.5%.",
+                        hints: [
+                            "You've just added all the individual probabilities, which would count situations where multiple modules have bugs. That's like adding up your chances of rain, snow, and sunshine and saying that's your chance of weather happening.",
+                            "This is the sum of combinations when exactly 2 modules have bugs, not when exactly 1 has a bug. You're solving for the wrong problem, like studying for a history test before your math final.", 
+                            "This looks like you multiplied instead of adding the probabilities, which would be calculating the chance of all three specific conditions happening together.", 
+                            "You calculated this correctly! For each possible 'exactly one bug' scenario, you multiplied the probabilities of that specific module having a bug and the others not having bugs."
+                        ]
+                    },
+                    {
+                        question: "A dataset of customer wait times follows an exponential distribution with a mean of 8 minutes. What is the probability that a customer will wait more than 12 minutes?",
+                        options: ["33.33%", "22.31%", "77.69%", "60%"],
+                        correct: 1,
+                        explanation: "For an exponential distribution with mean μ = 8, the rate parameter λ = 1/μ = 1/8 = 0.125. The probability of waiting more than x minutes is P(X > x) = e^(-λx). So P(X > 12) = e^(-0.125 × 12) = e^(-1.5) ≈ 0.2231 or 22.31%.",
+                        hints: [
+                            "This looks like you divided 8 minutes (the mean) by the 12 minutes in question. Exponential distributions don't work that way—they're more dramatic about declining probabilities.",
+                            "You properly calculated e^(-1.5) ≈ 0.2231. Exponential distributions drop off, well, exponentially! It's like the probability of your phone battery still having charge after being used longer than average.", 
+                            "This is P(X < 12), not P(X > 12). You've calculated the probability of waiting LESS than 12 minutes, which is 1 - 0.2231 = 0.7769.", 
+                            "Not sure where this came from—maybe you were thinking of a different distribution? This is like using a weather forecast from Nevada to plan your Seattle trip."
+                        ]
+                    },
+                    {
+                        question: "A portfolio manager is considering two investments with the following characteristics: Investment A has mean return 12% with standard deviation 8%; Investment B has mean return 10% with standard deviation 5%. If the correlation between A and B is 0.3, what is the standard deviation of a portfolio with 60% in A and 40% in B?",
+                        options: ["6.8%", "5.62%", "7.1%", "9.3%"],
+                        correct: 1,
+                        explanation: "Using the portfolio standard deviation formula: σp² = (wA²σA²) + (wB²σB²) + (2wAwBσAσBρAB). This gives: σp² = (0.6²×0.08²) + (0.4²×0.05²) + (2×0.6×0.4×0.08×0.05×0.3) = 0.002304 + 0.0004 + 0.000576 = 0.00328. Taking the square root: σp = √0.00328 ≈ 0.0562 or 5.62%.",
+                        hints: [
+                            "You've done a weighted average of the standard deviations, which ignores the critical correlation between investments. That's like calculating average rainfall without considering that some places are always dry and others always wet.",
+                            "You've used the correct portfolio variance formula including correlation. Diversification really does reduce risk when assets aren't perfectly correlated—it's like not putting all your eggs in baskets that tend to drop at the same time.", 
+                            "This result is too high—you might have used the wrong formula or made a calculation error. It's like overestimating how much food to make for a dinner party.", 
+                            "This is much too high—you've somehow ended up with more risk than either investment alone, which defeats the purpose of diversification. That's like combining two medications and getting more side effects than either one alone."
+                        ]
+                    }
+                ]
+            },
+            regression: {
+                easy: [
+                    {
+                        question: "What does a correlation coefficient of +0.9 indicate about the relationship between two variables?",
+                        options: ["Strong negative correlation", "Weak positive correlation", "Strong positive correlation", "No correlation"],
+                        correct: 2,
+                        explanation: "A correlation coefficient (r) of +0.9 indicates a strong positive correlation between the variables. This means that as one variable increases, the other tends to increase as well. The closer the coefficient is to +1, the stronger the positive correlation.",
+                        hints: [
+                            "Negative correlation means variables move in opposite directions—this coefficient is clearly positive unless you're reading it upside down.",
+                            "With +0.9, this relationship isn't 'weak'—it's like saying LeBron James is 'kinda good' at basketball.", 
+                            "At +0.9, these variables are practically best friends—when one goes up, the other follows right along nearly every time.", 
+                            "Zero correlation would mean no relationship at all. At +0.9, these variables are practically finishing each other's sentences."
+                        ]
+                    },
+                    {
+                        question: "In Excel, which function would you use to create a linear regression equation?",
+                        options: ["CORREL", "LINEST", "TREND", "SLOPE"],
+                        correct: 1,
+                        explanation: "LINEST is the Excel function that performs linear regression calculations and returns an array describing the linear equation. It calculates the statistics for a line using the least squares method.",
+                        hints: [
+                            "This function only tells you how related two variables are, not how to predict one from the other.",
+                            "This is Excel's way of saying 'give me your x's and y's, and I'll find the line that best fits them.' It's like the matchmaker of Excel functions.", 
+                            "This function predicts y-values based on an existing trend, but doesn't give you the actual regression equation.", 
+                            "This function only gives you the steepness of the relationship, not the full equation. It's like describing a road by its gradient but not where it starts."
+                        ]
+                    },
+                    {
+                        question: "What does the R² value in a regression represent?",
+                        options: ["The slope of the regression line", "The correlation coefficient", "The percentage of variance explained by the model", "The y-intercept of the regression line"],
+                        correct: 2,
+                        explanation: "The R² (coefficient of determination) represents the proportion of the variance in the dependent variable that is predictable from the independent variable(s). It indicates what percentage of the variation in Y can be explained by the model. R² ranges from 0 to 1, with higher values indicating better fit.",
+                        hints: [
+                            "That's the m in y = mx + b, not the R². You're focusing on the steepness, not the accuracy.",
+                            "That's R, not R². Getting confused between these is like mixing up a number and its square—close but mathematically very different.", 
+                            "R² tells you how much of the variation your model explains—like what percentage of your Netflix recommendations actually match your taste.", 
+                            "That's the b in y = mx + b, not the R². You're looking at where the line starts, not how well it fits the data."
+                        ]
+                    },
+                    {
+                        question: "In a simple linear regression, what does a positive slope indicate?",
+                        options: ["As x increases, y tends to decrease", "As x increases, y tends to increase", "There is no relationship between x and y", "The relationship between x and y is non-linear"],
+                        correct: 1,
+                        explanation: "In a simple linear regression equation (y = mx + b), a positive slope (m > 0) indicates that as the independent variable (x) increases, the dependent variable (y) tends to increase as well.",
+                        hints: [
+                            "That's a negative slope—you're going downhill when you should be going up.",
+                            "Positive slope means the line goes up as you move right—like your enthusiasm increasing as the weekend approaches.", 
+                            "A slope of zero would mean no relationship—this is definitely not what a positive slope indicates.", 
+                            "We're talking about linear regression—a positive slope still gives you a straight line, not curves or zigzags."
+                        ]
+                    },
+                    {
+                        question: "Which of the following is NOT a key assumption of linear regression?",
+                        options: ["Linearity of the relationship", "Independence of errors", "All variables must be normally distributed", "Homoscedasticity"],
+                        correct: 2,
+                        explanation: "Linear regression does not require that all variables be normally distributed. The assumption is that the errors (residuals) are normally distributed, not the variables themselves.",
+                        hints: [
+                            "This is definitely an assumption—without a linear relationship, linear regression is like using a ruler to measure a circle.",
+                            "This is an important assumption—each error should be its own independent mistake, not influenced by other errors. Like each student making their own unique mistakes on a test, not copying from neighbors.", 
+                            "This is NOT required—the predictor variables can have any distribution. Only the residuals need to follow a normal distribution. It's like saying everyone in a band needs to be the same height.", 
+                            "This fancy term (meaning 'equal scatter') is definitely an assumption—the spread of residuals should be consistent across all levels of the predicted values."
+                        ]
+                    },
+                    {
+                        question: "What is the purpose of residual analysis in regression?",
+                        options: ["To maximize the R² value", "To check if the model assumptions are valid", "To calculate the regression coefficients", "To determine the sample size"],
+                        correct: 1,
+                        explanation: "Residual analysis involves examining the differences between observed and predicted values (residuals) to check if the assumptions of the regression model (such as linearity, normality of errors, homoscedasticity, and independence) are valid.",
+                        hints: [
+                            "This is the goal of the regression itself, not residual analysis. You're confusing the home run with the instant replay.",
+                            "Residuals are like the regression's report card—they tell you if your model is actually doing what it claims to be doing.", 
+                            "The coefficients are calculated during the regression process, before you even look at residuals. You're putting the cart before the horse.", 
+                            "Sample size is determined before you even collect data, let alone analyze residuals. This is like checking your gas tank to decide how many people to invite on a road trip."
+                        ]
+                    },
+                    {
+                        question: "What does multicollinearity mean in multiple regression?",
+                        options: ["Multiple dependent variables are being predicted", "High correlation among predictor variables", "The relationship between variables is non-linear", "Variables are measured on multiple scales"],
+                        correct: 1,
+                        explanation: "Multicollinearity occurs when predictor variables in a multiple regression model are highly correlated with each other. This can make it difficult to determine the individual effect of each predictor on the dependent variable.",
+                        hints: [
+                            "That would be multivariate regression, not multicollinearity. You're confusing the problem with the analysis type.",
+                            "This is when your predictor variables are basically telling the same story—like having both 'years of education' and 'highest degree attained' in the same model.", 
+                            "Non-linearity is a different issue altogether—curves versus straight lines, not overlapping predictors.", 
+                            "Variable scales are addressed through standardization or normalization, not related to multicollinearity."
+                        ]
+                    },
+                    {
+                        question: "In a regression equation Y = 30 + 2X, what does the value 30 represent?",
+                        options: ["The slope", "The correlation coefficient", "The y-intercept", "The standard error"],
+                        correct: 2,
+                        explanation: "In the regression equation Y = a + bX, the constant term 'a' represents the y-intercept, which is the predicted value of Y when X equals zero. In this equation, the y-intercept is 30.",
+                        hints: [
+                            "That's the 2 in this equation—the amount Y increases when X increases by 1.",
+                            "The correlation coefficient doesn't appear directly in the regression equation—it's like confusing the recipe with the restaurant review.", 
+                            "The y-intercept is where the regression line crosses the Y-axis when X=0. In this case, if X=0, then Y=30+2(0)=30.", 
+                            "The standard error is a measure of the accuracy of predictions, not a component of the regression equation itself."
+                        ]
+                    },
+                    {
+                        question: "What is heteroscedasticity in regression analysis?",
+                        options: ["When residuals have constant variance across all levels of predictors", "When residuals have non-constant variance across levels of predictors", "When predictor variables are highly correlated", "When the relationship between variables is non-linear"],
+                        correct: 1,
+                        explanation: "Heteroscedasticity occurs when the variance of the residuals is not constant across all levels of the predictor variables. This violates one of the key assumptions of linear regression (homoscedasticity) and can lead to inefficient estimates and incorrect standard errors.",
+                        hints: [
+                            "That's homoscedasticity (uniform variation), not heteroscedasticity. You've described the goal, not the problem.",
+                            "Heteroscedasticity is when your prediction errors get wider or narrower depending on where you look—like a megaphone shape in your residual plot.", 
+                            "That's multicollinearity, a different regression problem altogether. Like mixing up a leaky roof with foundation cracks.", 
+                            "Non-linearity is about the shape of the relationship, not the variance of errors. It's like confusing a curvy road with a road of varying width."
+                        ]
+                    },
+                    {
+                        question: "What is the difference between correlation and regression?",
+                        options: ["Correlation measures causation; regression does not", "Correlation examines relationships; regression makes predictions", "Regression must include multiple variables; correlation only examines two", "Correlation uses the least squares method; regression does not"],
+                        correct: 1,
+                        explanation: "Correlation measures the strength and direction of a linear relationship between two variables but doesn't distinguish between dependent and independent variables. Regression establishes a predictive model that allows us to predict the value of a dependent variable based on one or more independent variables.",
+                        hints: [
+                            "Neither correlation nor regression establishes causation—that's Stats 101! Correlation is like noticing two people always arrive at the same time; causation is knowing one is giving the other a ride.",
+                            "Correlation tells you 'these things tend to move together'; regression says 'based on this, I predict that.' It's like the difference between noticing friends have similar music taste versus recommending songs they'll like.", 
+                            "Simple linear regression can have just one predictor variable, so this isn't the key difference.", 
+                            "Both correlation and regression can use least squares methods—this isn't what distinguishes them."
+                        ]
+                    },
+                    {
+                        question: "What is a dummy variable in regression analysis?",
+                        options: ["A variable with no predictive power", "A variable used only for testing purposes", "A binary variable representing categorical data", "A placeholder for missing values"],
+                        correct: 2,
+                        explanation: "A dummy variable (also called an indicator variable) is a binary (0/1) variable used to represent categorical data in regression analysis. It takes the value 1 if an observation belongs to a specific category and 0 if it does not.",
+                        hints: [
+                            "Even weak predictors aren't called 'dummies'—that would be rude to the variables' feelings.",
+                            "Test variables have their place, but that's not what dummy variables are for.", 
+                            "Dummy variables convert categories like 'male/female' into numbers like '0/1' so regression can handle them. It's like creating a special pass/fail system for variables that don't naturally come as numbers.", 
+                            "Missing values are typically handled through imputation or deletion, not dummy variables."
+                        ]
+                    },
+                    {
+                        question: "In Excel, which function calculates the Pearson correlation coefficient between two variables?",
+                        options: ["PEARSON", "CORREL", "CORRELATION", "COVAR"],
+                        correct: 1,
+                        explanation: "Both PEARSON and CORREL functions in Excel calculate the Pearson correlation coefficient between two sets of values. They're equivalent functions that measure how strongly two variables are related on a scale from -1 to +1.",
+                        hints: [
+                            "This function exists in Excel and does calculate the correlation coefficient. It's named after the statistician who developed this measure.",
+                            "This is Excel's standard function for correlation—it tells you how closely two variables dance together.", 
+                            "Excel doesn't have this function—you're making up function names like a programmer with too much coffee and too little sleep.", 
+                            "This calculates covariance, which is related to but different from correlation. Covariance isn't standardized, so it's like having a ruler without consistent inch markings."
+                        ]
+                    },
+                    {
+                        question: "What does a scatter plot reveal in regression analysis?",
+                        options: ["The exact regression equation", "Patterns in time-series data", "The visual relationship between two variables", "The distribution of a single variable"],
+                        correct: 2,
+                        explanation: "A scatter plot visually displays the relationship between two variables by plotting data points on a two-dimensional graph. It helps in identifying patterns, potential relationships, outliers, and whether a linear regression might be appropriate.",
+                        hints: [
+                            "The plot alone doesn't give you the equation—that requires calculation. It's like seeing two people walking together but not knowing their exact speeds.",
+                            "That's what line charts are for. Scatter plots don't inherently show time progression unless you specifically plot time on an axis.", 
+                            "Scatter plots are like relationship status updates between variables—'are they just friends or is there something more going on here?'", 
+                            "That's what histograms are for. Scatter plots need two variables to tango."
+                        ]
+                    },
+                    {
+                        question: "What is the meaning of 'fitting a regression line' to data?",
+                        options: ["Physically drawing a line through a scatter plot", "Finding the line that has equal points above and below it", "Finding the line that minimizes the sum of squared residuals", "Making the regression line pass through all data points"],
+                        correct: 2,
+                        explanation: "Fitting a regression line means finding the line that minimizes the sum of squared residuals (the differences between observed values and the values predicted by the line). This is typically done using the least squares method.",
+                        hints: [
+                            "We've progressed beyond physical drawing in the age of computers—although sometimes a ruler on a screen feels satisfying.",
+                            "That would be the median regression line, not the standard least squares regression line. You're thinking about balance rather than best fit.", 
+                            "The least squares method finds the line that makes the squared prediction errors as small as possible—like finding the route with the least overall traffic, not necessarily the shortest distance.", 
+                            "That would require a perfect fit, which is almost never possible with real data. It's like expecting every student to get exactly the same score on a test."
+                        ]
+                    },
+                    {
+                        question: "What does a regression coefficient represent?",
+                        options: ["The correlation between variables", "The average value of the dependent variable", "The change in Y associated with a one-unit change in X", "The percentage of variance explained by the model"],
+                        correct: 2,
+                        explanation: "A regression coefficient represents the average change in the dependent variable (Y) for each one-unit increase in the associated independent variable (X), holding all other variables constant.",
+                        hints: [
+                            "That's what the correlation coefficient measures, not the regression coefficient. Different metrics for different questions.",
+                            "That would be closer to the intercept term, not the coefficient of X.", 
+                            "The coefficient tells you 'for each additional X, expect Y to change by this much'—like knowing that each additional hour of study is associated with 5 more points on the test.", 
+                            "That's what R² measures, not the individual regression coefficients."
+                        ]
+                    },
+                    {
+                        question: "What is the purpose of the F-test in regression analysis?",
+                        options: ["To test if individual predictors are significant", "To test if the overall model is significant", "To test for normality of residuals", "To test for multicollinearity"],
+                        correct: 1,
+                        explanation: "The F-test in regression analysis tests whether the overall model is statistically significant by comparing the amount of variance explained by the regression to the unexplained variance. It tests the null hypothesis that all regression coefficients are equal to zero.",
+                        hints: [
+                            "That's what t-tests do for individual predictors. The F-test is checking if the whole model is worth anything.",
+                            "The F-test asks 'Is this model any better than just guessing the mean for everything?' It's like checking if your fantasy sports algorithm is any better than random picks.", 
+                            "That would typically involve a different test like the Shapiro-Wilk test or a Q-Q plot, not an F-test.", 
+                            "Multicollinearity is typically assessed using variance inflation factors (VIFs) or tolerance statistics, not the F-test."
+                        ]
+                    },
+                    {
+                        question: "What does extrapolation mean in the context of regression?",
+                        options: ["Using the regression model to predict values within the range of the observed data", "Using the regression model to predict values outside the range of the observed data", "Removing outliers from the analysis", "Adding more predictor variables to the model"],
+                        correct: 1,
+                        explanation: "Extrapolation refers to using a regression model to make predictions for values of the independent variable(s) that fall outside the range of the data used to develop the model. This practice can be risky because the relationship between variables may change beyond the observed range.",
+                        hints: [
+                            "That's interpolation, which is generally safer than extrapolation. It's like estimating temperatures for cities between two weather stations.",
+                            "Extrapolation is venturing into unknown territory—like using data on teen drivers to predict how 90-year-olds will drive. The model might not hold up!", 
+                            "That's a data cleaning step, not a prediction strategy. It happens before building the model, not when using it.", 
+                            "That's model expansion or feature addition, not a prediction strategy."
+                        ]
+                    },
+                    {
+                        question: "What is the difference between simple and multiple regression?",
+                        options: ["Simple regression uses the least squares method; multiple regression does not", "Simple regression has one dependent and one independent variable; multiple regression has one dependent and multiple independent variables", "Simple regression makes linear predictions; multiple regression makes non-linear predictions", "Simple regression requires fewer data points than multiple regression"],
+                        correct: 1,
+                        explanation: "Simple linear regression models the relationship between one dependent variable and one independent variable. Multiple regression models the relationship between one dependent variable and two or more independent variables.",
+                        hints: [
+                            "Both types typically use least squares—that's not what distinguishes them.",
+                            "Simple regression is like trying to predict house prices based only on square footage; multiple regression adds neighborhood, number of bathrooms, age of house, etc. More predictors = multiple regression.", 
+                            "Both can make linear predictions—the 'multiple' refers to the number of predictors, not the shape of the relationship.", 
+                            "Sample size requirements depend on many factors, not just whether it's simple or multiple regression."
+                        ]
+                    },
+                    {
+                        question: "What is the interpretation of the intercept in a regression equation?",
+                        options: ["The average value of the dependent variable", "The value of the dependent variable when all independent variables equal their means", "The value of the dependent variable when all independent variables equal zero", "The rate of change in the dependent variable"],
+                        correct: 2,
+                        explanation: "The intercept in a regression equation represents the predicted value of the dependent variable when all independent variables equal zero. However, this interpretation may not always be meaningful if zero values for independent variables are outside the observed range of data.",
+                        hints: [
+                            "That's closer to the mean of Y, not necessarily the intercept.",
+                            "That happens when you center your variables, but it's not the standard interpretation of the intercept.", 
+                            "The intercept is where your prediction line crosses the Y-axis—what Y equals when X is zero. Like your base salary before any commission.", 
+                            "That's what the slope coefficients tell you, not the intercept."
+                        ]
+                    },
+                    {
+                        question: "Which plot is essential for checking the homoscedasticity assumption in regression?",
+                        options: ["Histogram of the dependent variable", "Normal probability plot of residuals", "Residuals versus predicted values plot", "Scatter plot of independent versus dependent variables"],
+                        correct: 2,
+                        explanation: "A plot of residuals versus predicted values (or versus independent variables) is essential for checking the homoscedasticity assumption. If the spread of residuals is relatively constant across all levels of the predicted values, the assumption is likely met.",
+                        hints: [
+                            "This helps check the distribution of Y, not whether residuals have constant variance.",
+                            "This checks if residuals are normally distributed, not if they have constant variance.", 
+                            "This is the key plot for homoscedasticity—if it looks like a random cloud with constant width, you're good. If it looks like a funnel or megaphone, you've got heteroscedasticity problems.", 
+                            "This helps visualize the overall relationship, not specifically the homoscedasticity assumption."
+                        ]
+                    },
+                    {
+                        question: "What is the purpose of standardized regression coefficients (beta coefficients)?",
+                        options: ["To make the regression equation simpler", "To remove outliers from the analysis", "To compare the relative importance of different predictors", "To transform non-linear relationships into linear ones"],
+                        correct: 2,
+                        explanation: "Standardized regression coefficients (beta coefficients) convert all variables to a standard scale (mean=0, SD=1), allowing direct comparison of the relative importance of different predictor variables, regardless of their original units of measurement.",
+                        hints: [
+                            "They actually make the equation less intuitive to interpret in original units.",
+                            "They don't address outliers at all—that's a separate data preparation step.", 
+                            "Beta coefficients let you compare apples to oranges—like seeing whether years of experience or education level has more impact on salary.", 
+                            "They maintain the same linear or non-linear relationships, just on a standardized scale."
+                        ]
+                    }
+                ],
+                medium: [
+                    {
+                        question: "A regression model for predicting sales based on advertising spend has the equation: Sales = 50,000 + 2.5 × AdvertisingSpend. What are the expected sales with an advertising spend of $20,000?",
+                        options: ["$50,000", "$70,000", "$100,000", "$120,000"],
+                        correct: 2,
+                        explanation: "Using the regression equation: Sales = 50,000 + 2.5 × AdvertisingSpend. Substituting $20,000 for AdvertisingSpend: Sales = 50,000 + 2.5 × 20,000 = 50,000 + 50,000 = $100,000.",
+                        hints: [
+                            "That's just the intercept value—what you'd get with $0 spent on advertising. You're missing the effect of the $20,000 ad spend completely.",
+                            "You've calculated 50,000 + 2.5 × 8,000, not 20,000. Did your calculator malfunction?", 
+                            "Sales = 50,000 + 2.5 × 20,000 = 50,000 + 50,000 = $100,000. Basic algebra at work!", 
+                            "You've used a multiplier of 3.5 instead of 2.5. Check the original equation again."
+                        ]
+                    },
+                    {
+                        question: "If a regression analysis has an R² of 0.64, what percentage of the variation in the dependent variable is NOT explained by the model?",
+                        options: ["64%", "36%", "0.64%", "0.36%"],
+                        correct: 1,
+                        explanation: "An R² of 0.64 means that 64% of the variation in the dependent variable is explained by the model. Therefore, 100% - 64% = 36% of the variation is NOT explained by the model (sometimes called the 'unexplained variation').",
+                        hints: [
+                            "That's how much IS explained, not how much ISN'T explained. You're giving credit to the model for what it doesn't do.",
+                            "100% - 64% = 36%. That's the mystery variation your model can't explain—like the part of your electric bill you can't account for no matter how hard you try.", 
+                            "You've confused the decimal with a percentage. R² of 0.64 means 64%, not 0.64%.", 
+                            "You've both used the wrong percentage AND confused it with a decimal. It's like getting confused at a 36% off sale and thinking it's 0.36% off."
+                        ]
+                    },
+                    {
+                        question: "A business analyst performs a multiple regression with 3 predictor variables and obtains an adjusted R² of 0.75. What statement is most accurate?",
+                        options: ["75% of the variation in the dependent variable is explained by each predictor", "75% of the variation in the dependent variable is explained by the model, accounting for the number of predictors", "The correlation between variables is 0.75", "Each predictor explains 25% of the variation"],
+                        correct: 1,
+                        explanation: "The adjusted R² accounts for the number of predictors in the model and provides a more accurate measure of the model's explanatory power. An adjusted R² of 0.75 means that approximately 75% of the variation in the dependent variable is explained by the model, adjusted for the number of predictors.",
+                        hints: [
+                            "That would mean each predictor explains 75%, for a total of 225%—which is mathematically impossible unless you're a politician talking about giving 110% effort.",
+                            "Adjusted R² is like R² but with a reality check that penalizes you for throwing in kitchen-sink variables that don't add value. It says your model explains about 75% of what's happening.", 
+                            "Correlation refers to the relationship between two variables, not the explanatory power of a multiple regression model.", 
+                            "The predictors collectively explain 75%, not 25% each. They're a team, not equal contributors."
+                        ]
+                    }
+                ],
+                hard: [
+                    {
+                        question: "A regression analysis yields: Y = 25 + 3X + ε, with a standard error of the slope of 0.8. What is the t-statistic for testing if there is a significant relationship between X and Y?",
+                        options: ["3.75", "31.25", "0.27", "25"],
+                        correct: 0,
+                        explanation: "The t-statistic for testing the significance of a regression coefficient is calculated as (coefficient / standard error). For the slope: t = 3 / 0.8 = 3.75.",
+                        hints: [
+                            "t = coefficient / standard error = 3 / 0.8 = 3.75. It's like measuring how many standard errors you could fit inside your coefficient.",
+                            "You've multiplied instead of divided. That's like calculating miles per gallon as miles × gallons.", 
+                            "You've divided the standard error by the coefficient, which is backward. It's like calculating speed as hours per mile instead of miles per hour.", 
+                            "You've confused the intercept (25) with the t-statistic. Different parts of the equation!"
+                        ]
+                    },
+                    {
+                        question: "A marketing analyst builds a multiple regression model to predict customer spend based on age, income, and previous purchase amount. The model's residuals, when plotted against predicted values, show a distinct funnel shape (narrow on the left, wide on the right). What problem does this likely indicate?",
+                        options: ["Multicollinearity", "Heteroscedasticity", "Autocorrelation", "Non-linearity"],
+                        correct: 1,
+                        explanation: "A funnel-shaped pattern in residuals (where variance increases with the predicted value) indicates heteroscedasticity. This means the error terms don't have constant variance, which violates one of the assumptions of linear regression. This can lead to inefficient estimates and incorrect standard errors.",
+                        hints: [
+                            "Multicollinearity is when your predictors are too friendly with each other, not about the pattern of errors in your model.",
+                            "Heteroscedasticity is when your prediction errors get more dramatic as predicted values increase—like how your GPS gets increasingly confused the further you drive into rural areas.", 
+                            "Autocorrelation is when today's errors are related to yesterday's errors, not about the spread of errors across prediction levels.", 
+                            "Non-linearity would show as a curved pattern in residuals, not a funnel shape with consistent spread."
+                        ]
+                    },
+                    {
+                        question: "A business analyst finds that a regression model with 5 predictors has a Variance Inflation Factor (VIF) of 8.3 for one of the variables. What should the analyst do?",
+                        options: ["Nothing, this is an acceptable VIF value", "Remove the variable from the model", "Add more variables to the model", "Combine the variable with others through factor analysis"],
+                        correct: 1,
+                        explanation: "A VIF value greater than 5 (some sources use 10) indicates problematic multicollinearity. This means the variable is highly correlated with other predictors, making coefficient estimates unstable. The analyst should consider removing this variable or addressing the multicollinearity through other methods like principal component analysis.",
+                        hints: [
+                            "Most statisticians get concerned when VIF exceeds 5 or 10. This is like having your check engine light on and deciding it's fine.",
+                            "This variable is partying too hard with your other variables, making it hard to tell who's actually influencing the outcome. It's like trying to figure out who ate the last cookie when everyone's stories overlap.", 
+                            "Adding more variables would likely make the multicollinearity worse, not better. It's like trying to fix a crowded elevator by inviting more people in.", 
+                            "This could work but is more complex than necessary as a first step. It's like building a helicopter when you just need to cross the street."
+                        ]
+                    },
+                    {
+                        question: "An e-commerce company builds a regression model to predict customer lifetime value (CLV). The model has an RMSE of $250. A customer has a predicted CLV of $1,500. What is the most appropriate way to interpret this prediction?",
+                        options: ["The customer will spend exactly $1,500", "The customer will spend between $1,250 and $1,750", "The customer will spend at least $1,500", "The model is 95% confident the customer will spend $1,500"],
+                        correct: 1,
+                        explanation: "The Root Mean Square Error (RMSE) represents the standard deviation of the prediction errors. When making predictions, approximately 68% of actual values will fall within ±1 RMSE of the predicted value (assuming normally distributed errors). So there's about a 68% chance that the actual CLV will be between $1,500 ± $250, or $1,250 to $1,750.",
+                        hints: [
+                            "Predictions are never exact—that's like saying you'll arrive at exactly 5:43 PM despite traffic, weather, and your tendency to hit the snooze button.",
+                            "RMSE gives us the typical prediction error, so the actual value is likely within $250 of our prediction. It's like saying your pizza will arrive in 30 minutes, give or take 5 minutes.", 
+                            "The prediction is a point estimate, not a minimum. The actual value could be higher OR lower than $1,500.", 
+                            "This confuses RMSE with confidence intervals. RMSE gives us a one-standard-deviation range, which is about 68% confidence, not 95%."
+                        ]
+                    }
+                ]
+            }
+        };
+        
+        // Track stats
+        let stats = {
+            descriptive: { questions: 0, correct: 0 },
+            probability: { questions: 0, correct: 0 },
+            regression: { questions: 0, correct: 0 },
+            current: {
+                topic: "descriptive",
+                difficulty: "easy",
+                question: null,
+                selectedAnswer: null,
+                questionHintShown: false
+            },
+            total: {
+                questions: 0,
+                correct: 0
+            }
+        };
+        
+        // Initialize
+        function initialize() {
+            // Set up topic buttons
+            document.querySelectorAll('.topic-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.topic-button').forEach(b => b.classList.remove('active'));
+                    button.classList.add('active');
+                    stats.current.topic = button.getAttribute('data-topic');
+                    generateNewQuestion();
+                });
+            });
+            
+            // Set up difficulty selector
+            document.getElementById('difficulty').addEventListener('change', (e) => {
+                stats.current.difficulty = e.target.value;
+                generateNewQuestion();
+            });
+            
+            // Initialize with first question
+            generateNewQuestion();
+            updateStats();
+        }
+        
+        // Generate a new question
+        function generateNewQuestion() {
+            // Reset question state
+            stats.current.selectedAnswer = null;
+            stats.current.questionHintShown = false;
+            
+            // Get topic and difficulty
+            const topic = stats.current.topic;
+            const difficulty = stats.current.difficulty;
+            
+            // Get available questions
+            const questions = questionBank[topic][difficulty];
+            
+            // Select a random question
+            const questionIndex = Math.floor(Math.random() * questions.length);
+            stats.current.question = questions[questionIndex];
+            
+            // Display the question
+            loadCurrentQuestion();
+        }
+        
+        // Load the current question
+        function loadCurrentQuestion() {
+            const q = stats.current.question;
+            
+            document.getElementById("question").innerText = q.question;
+            document.getElementById("options").innerHTML = "";
+            document.getElementById("hint").style.display = "none";
+            document.getElementById("hint").innerText = "";
+            document.getElementById("explanation").style.display = "none";
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("next-button").style.display = "none";
+            document.getElementById("hint-button").style.display = "inline-block";
+            document.getElementById("submit-button").style.display = "inline-block";
+            
+            // Create option buttons
+            q.options.forEach((option, index) => {
+                let btn = document.createElement("button");
+                btn.innerText = option;
+                btn.setAttribute("data-index", index);
+                btn.onclick = () => selectAnswer(index);
+                document.getElementById("options").appendChild(btn);
+            });
+        }
+        
+        // Handle answer selection
+        function selectAnswer(index) {
+            stats.current.selectedAnswer = index;
+            
+            // Clear all selected classes first
+            const buttons = document.querySelectorAll('.options button');
+            buttons.forEach(button => {
+                button.classList.remove('selected');
+            });
+            
+            // Add selected class to the chosen button
+            buttons[index].classList.add('selected');
+            
+            // If hint was already shown, update it for the selected answer
+            if (stats.current.questionHintShown) {
+                showAnswerHint(index);
+            }
+        }
+        
+        // Show hint for specific answer
+        function showAnswerHint(index) {
+            const q = stats.current.question;
+            let hint = document.getElementById("hint");
+            hint.innerText = q.hints[index];
+            hint.style.display = "block";
+        }
+        
+        // Show hint button handler
+        function showHint() {
+            stats.current.questionHintShown = true;
+            if (stats.current.selectedAnswer !== null) {
+                showAnswerHint(stats.current.selectedAnswer);
+            } else {
+                let hint = document.getElementById("hint");
+                hint.innerText = "Please select an answer to see a specific hint!";
+                hint.style.display = "block";
+            }
+        }
+        
+        // Submit answer
+        function submitAnswer() {
+            if (stats.current.selectedAnswer === null) {
+                document.getElementById("feedback").innerText = "Please select an answer first!";
+                return;
+            }
+            
+            const q = stats.current.question;
+            let feedback = document.getElementById("feedback");
+            
+            // Disable changing answers after submission
+            const buttons = document.querySelectorAll('.options button');
+            buttons.forEach(button => {
+                button.disabled = true;
+            });
+            
+            // Highlight correct answer
+            buttons[q.correct].style.backgroundColor = "#c8e6c9";
+            buttons[q.correct].style.borderColor = "#4caf50";
+            
+            // Update stats
+            stats.total.questions++;
+            stats[stats.current.topic].questions++;
+            
+            // Check if answer is correct
+            if (stats.current.selectedAnswer === q.correct) {
+                feedback.innerText = "Correct!";
+                feedback.className = "feedback correct";
+                stats.total.correct++;
+                stats[stats.current.topic].correct++;
+            } else {
+                feedback.innerText = "Wrong answer!";
+                feedback.className = "feedback wrong";
+                buttons[stats.current.selectedAnswer].style.backgroundColor = "#ffcdd2";
+                buttons[stats.current.selectedAnswer].style.borderColor = "#f44336";
+            }
+            
+            // Show explanation
+            const explanation = document.getElementById("explanation");
+            explanation.innerText = q.explanation;
+            explanation.style.display = "block";
+            
+            // Show next button
+            document.getElementById("submit-button").style.display = "none";
+            document.getElementById("hint-button").style.display = "none";
+            document.getElementById("next-button").style.display = "inline-block";
+            
+            // Update stats display
+            updateStats();
+        }
+        
+        // Go to next question
+        function nextQuestion() {
+            generateNewQuestion();
+        }
+        
+        // Update statistics display
+        function updateStats() {
+            document.getElementById("questions-answered").innerText = stats.total.questions;
+            document.getElementById("correct-answers").innerText = stats.total.correct;
+            
+            const successRate = stats.total.questions === 0 ? 0 : Math.round((stats.total.correct / stats.total.questions) * 100);
+            document.getElementById("success-rate").innerText = `${successRate}%`;
+        }
+        
+        // Initialize when the page loads
+        window.onload = initialize;
+    </script>
+</body>
+</html>
